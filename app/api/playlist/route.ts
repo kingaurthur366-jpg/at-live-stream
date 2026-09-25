@@ -1,4 +1,58 @@
-import {NextRequest,NextResponse} from "next/server";import {sources} from "@/lib/sources";
-type Channel={name:string;url:string;logo?:string;group?:string};const attr=(s:string,key:string)=>s.match(new RegExp(`${key}="([^"]*)"`))?.[1];
-function parseM3U(text:string):Channel[]{const lines=text.split(/\r?\n/);const out:Channel[]=[];let info="";for(const raw of lines){const line=raw.trim();if(line.startsWith("#EXTINF:")){info=line;continue}if(info&&line&& !line.startsWith("#")){out.push({name:info.slice(info.lastIndexOf(",")+1).trim()||"Live Channel",url:line,logo:attr(info,"tvg-logo"),group:attr(info,"group-title")});info=""}}return out.filter(x=>/^https?:\/\//i.test(x.url))}
-export async function GET(req:NextRequest){const id=req.nextUrl.searchParams.get("id");const source=sources.find(s=>s.id===id);if(!source)return NextResponse.json({error:"Unknown category"},{status:404});try{const response=await fetch(source.url,{next:{revalidate:900},headers:{"User-Agent":"AT-Live-Stream/1.0"}});if(!response.ok)throw new Error("Upstream source unavailable");const channels=parseM3U(await response.text());return NextResponse.json({category:source.category,channels},{headers:{"Cache-Control":"s-maxage=900, stale-while-revalidate=3600"}})}catch{return NextResponse.json({error:"This playlist is unavailable right now. Please try again later."},{status:502})}}
+import { NextRequest, NextResponse } from "next/server";
+import { sources } from "@/lib/sources";
+
+export const dynamic = 'force-dynamic';
+
+type Channel = { name: string; url: string; logo?: string; group?: string };
+const attr = (s: string, key: string) => s.match(new RegExp(`${key}="([^"]*)"`))?.[1];
+
+function parseM3U(text: string): Channel[] {
+  const lines = text.split(/\r?\n/);
+  const out: Channel[] = [];
+  let info = "";
+  for (const raw of lines) {
+    const line = raw.trim();
+    if (line.startsWith("#EXTINF:")) {
+      info = line;
+      continue;
+    }
+    if (info && line && !line.startsWith("#")) {
+      out.push({
+        name: info.slice(info.lastIndexOf(",") + 1).trim() || "Live Channel",
+        url: line,
+        logo: attr(info, "tvg-logo"),
+        group: attr(info, "group-title")
+      });
+      info = "";
+    }
+  }
+  return out.filter(x => /^https?:\/\//i.test(x.url));
+}
+
+export async function GET(req: NextRequest) {
+  const id = req.nextUrl.searchParams.get("id");
+  const source = sources.find(s => s.id === id);
+
+  if (!source) return NextResponse.json({ error: "Unknown category" }, { status: 404 });
+
+  try {
+    const response = await fetch(source.url, {
+      cache: "no-store",
+      headers: { "User-Agent": "AT-Live-Stream/1.0" }
+    });
+
+    if (!response.ok) throw new Error("Upstream source unavailable");
+
+    const channels = parseM3U(await response.text());
+
+    return NextResponse.json(
+      { category: source.category, channels },
+      { headers: { "Cache-Control": "no-store, max-age=0" } }
+    );
+  } catch {
+    return NextResponse.json(
+      { error: "This playlist is unavailable right now. Please try again later." },
+      { status: 502 }
+    );
+  }
+}

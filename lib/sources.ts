@@ -69,5 +69,12 @@ export const sources: Source[] = [
     category: "English",
     url: "https://iptv-org.github.io/iptv/languages/eng.m3u",
     icon: "EN"
-  }
+  },
+  {
+  id: "live",
+  name: "AT Live",
+  category: "Live",
+  url: "",
+  icon: "🔴"
+},
 ];

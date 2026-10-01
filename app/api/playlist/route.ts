@@ -35,6 +35,31 @@ export async function GET(req: NextRequest) {
 
   if (!source) return NextResponse.json({ error: "Unknown category" }, { status: 404 });
 
+  if (source.id === "live") {
+    try {
+      const r = await fetch(process.env.LIVE_LINK_FILE ?? "", { cache: "no-store" });
+      if (!r.ok) throw new Error("Link file unavailable");
+
+      const liveUrl = (await r.text())
+        .split(/\r?\n/)
+        .map(l => l.trim())
+        .find(l => /^https?:\/\//i.test(l));
+
+      if (!liveUrl) throw new Error("No link found");
+
+      return NextResponse.json(
+        { category: source.category, channels: [{ name: source.name, url: liveUrl }] },
+        { headers: { "Cache-Control": "no-store, max-age=0" } }
+      );
+    } catch (e) {
+      console.error("LIVE ERROR:", e, "| LIVE_LINK_FILE =", process.env.LIVE_LINK_FILE);
+      return NextResponse.json(
+        { error: "Live link is not set right now." },
+        { status: 404 }
+      );
+    }
+  }
+
   try {
     const response = await fetch(source.url, {
       cache: "no-store",

@@ -2,10 +2,12 @@
 type Channel={name:string;url:string;logo?:string;group?:string};
 
 const ytEmbed=(u:string)=>{
-  const v=u.match(/(?:youtube\.com\/(?:watch\?(?:.*&)?v=|live\/|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/);
-  if(v)return `https://www.youtube.com/embed/${v[1]}?autoplay=1&rel=0`;
-  const c=u.match(/youtube\.com\/channel\/([\w-]+)/);
-  if(c)return `https://www.youtube.com/embed/live_stream?channel=${c[1]}&autoplay=1`;
+  const list=u.match(/[?&]list=([\w-]+)/)?.[1];
+  const v=u.match(/(?:youtube\.com\/(?:watch\?(?:.*&)?v=|live\/|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/)?.[1];
+  if(v)return `https://www.youtube.com/embed/${v}?autoplay=1&rel=0${list?`&list=${list}`:""}`;
+  if(list)return `https://www.youtube.com/embed/videoseries?list=${list}&autoplay=1&rel=0`;
+  const c=u.match(/youtube\.com\/channel\/([\w-]+)/)?.[1];
+  if(c)return `https://www.youtube.com/embed/live_stream?channel=${c}&autoplay=1`;
   return null;
 };
 
@@ -25,11 +27,12 @@ export default function StreamApp(){const [source,setSource]=useState<Source|nul
 
             {ytEmbed(selected.url) ? (
         <div className="player">
-          <iframe
+                    <iframe
             src={ytEmbed(selected.url)!}
             title={selected.name}
             style={{ width: "100%", aspectRatio: "16/9", border: 0, display: "block" }}
             allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+            referrerPolicy="strict-origin-when-cross-origin"
             allowFullScreen
           />
         </div>

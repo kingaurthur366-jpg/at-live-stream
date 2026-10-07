@@ -1,19 +1,12 @@
-
 import "./globals.css";
-import type {Metadata} from "next";
-export const metadata:Metadata={title:"AT Live Stream",description:"Live channels"};
-export default function Layout({children}:
-    {children:React.ReactNode}){return <html lang="en"><body>{children}
-    
-    <div
-  dangerouslySetInnerHTML={{
-    __html: `<!-- BEGIN AADS AD UNIT 2456915 -->
+import type { Metadata } from "next";
 
-<div id="frame" style="width: 100%;margin: auto;position: relative; z-index: 99998;">
-          <iframe data-aa='2456915' src='//acceptable.a-ads.com/2456915/?size=Adaptive'
-                            style='border:0; padding:0; width:70%; height:auto; overflow:hidden;display: block;margin: auto'></iframe>`
-  }}
-/>
+export const metadata: Metadata = { title: "AT Live Stream", description: "Live channels" };
 
-    </body>
-    </html>}
+export default function Layout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <body>{children}</body>
+    </html>
+  );
+}

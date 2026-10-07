@@ -43,4 +43,7 @@ export default function StreamApp(){const [source,setSource]=useState<Source|nul
   </div>
 )}
 
+{/* Ads form Adsterra */}
+      <script data-cfasync="false" src="https://aarems.org/1/b088e1747022e48ecd4d62bcfb3024be"></script>
+
 <footer className="shell muted" style={{padding:"26px 20px",borderTop:"1px solid #263451"}}>© 2026 AT Live Stream · Developed by Azmi Travels</footer></> }
